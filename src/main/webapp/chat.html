@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="css/chat.css" rel="stylesheet"/>
+<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+<script src="js/socket.js"></script>
+<script src="js/mqttws31.js"></script>
+<script>
+var so = new Socket("127.0.0.1",8083);
+
+	// socket.io specific code
+	/* function send(){
+		s.send($("#message").val());
+	}
+	function disconnect(){
+		s.close();
+	}
+	$(function(){
+		client = new Messaging.Client("192.168.32.66", 61614, "huanzh-test");
+		client.onConnectionLost = onConnectionLost;
+		client.onMessageArrived = onMessageArrived;
+		client.connect({onSuccess:onConnect});
+
+		function onConnect() {
+		  // Once a connection has been made, make a subscription and send a message.
+		  console.log("onConnect");
+		  client.subscribe("huanzh-test");
+		  message = new Messaging.Message("huanzh-test");
+		  message.destinationName = "huanzh-test";
+		  client.send(message); 
+		};
+		function onConnectionLost(responseObject) {
+		  if (responseObject.errorCode !== 0)
+		    console.log("onConnectionLost:"+responseObject.errorMessage);
+		};
+		function onMessageArrived(message) {
+		  console.log("onMessageArrived:"+message.payloadString);
+		  client.disconnect(); 
+		};
+	}); */
+</script>
+</head>
+<body>
+	<div id="chat">
+		<div id="connecting">
+			<div class="wrap"></div>
+		</div>
+		<div id="messages">
+		</div>
+		<input id="message">
+		<button onclick="send();">Send</button>
+		<button onclick="disconnect();">disconnect</button>
+	</div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://www.cnblogs.com/chrischennx/p/6781574.html -->
+<configuration>
+    <property name="LOG_HOME" value="/temp/jmqttd/logs" />
+    <property name="FILE_NAME" value="jmqttd-info" />
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+        </layout>
+    </appender>
+    <appender name="FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${FILE_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_HOME}/${FILE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- keep 30 days' worth of history capped at 1GB total size -->
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %level %logger - %msg%n</Pattern>
+        </layout>
+    </appender>
+	<logger name="java.sql" level="DEBUG"></logger>
+    <logger name="org.apache.ibatis" level="DEBUG"></logger>
+    <logger name="io.netty" level="INFO"></logger>
+	<root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+    </root>
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <!-- <appender-ref ref="FILE_APPENDER" /> -->
+    </root>
+</configuration>
