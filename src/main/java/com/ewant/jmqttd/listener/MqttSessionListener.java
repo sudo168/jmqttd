@@ -53,9 +53,16 @@ public class MqttSessionListener implements Closeable{
         messageListener = new MqttMessageListener(protocol);
     }
 
+    /**
+     * 客户端发送connect消息时触发
+     * @param channel
+     * @param connect
+     * @return
+     */
     public MqttSession onSessionStart(Channel channel, MqttConnect connect){
         TimeoutDataHolder<MqttSession> sessionTimeoutDataHolder = scheduler.cancel(SchedulerKey.forKey(SchedulerKey.Type.CONNECT_TIMEOUT, channel));
         if(sessionTimeoutDataHolder != null){
+            sessionTimeoutDataHolder.getTimeout().cancel();
             MqttSession mqttSession = sessionTimeoutDataHolder.getData();
             mqttSession.start(connect);
             return mqttSession;
@@ -63,6 +70,10 @@ public class MqttSessionListener implements Closeable{
         return null;
     }
 
+    /**
+     * 客户端连接进来时触发
+     * @param channel
+     */
     public void onSessionOpen(final Channel channel){
     	int maxClient = server.getConfiguration().getServerConfig().getMaxClient();
     	if(SESSION_COUNT.get() + 1 > maxClient){
@@ -84,6 +95,7 @@ public class MqttSessionListener implements Closeable{
         }, connectTimeout, TimeUnit.SECONDS);
 
         sessionTimeoutDataHolder.setData(session);
+        logger.info("MQTT session open [{}] ", ProtocolUtil.toSessionId(channel));
     }
 
     public void onSessionClose(Channel channel){
@@ -112,7 +124,7 @@ public class MqttSessionListener implements Closeable{
     }
 
     public void onMessage(Channel channel, MqttSession client, MqttWireMessage message){
-        logger.info("MQTT message[{}] arrived from client[{}]", message.getClass().getSimpleName(), client == null ? ProtocolUtil.toSessionId(channel) : client);
+        logger.info("MQTT message[{}-{}] arrived from client[{}]", message.getClass().getSimpleName(), message.getMessageId(), client == null ? ProtocolUtil.toSessionId(channel) : client);
         MqttMessageType type = message.getType();
         // TODO 统计接收数
         if (type == MqttMessageType.CONNECT) {
@@ -148,7 +160,7 @@ public class MqttSessionListener implements Closeable{
     }
 
     public void onSend(MqttSession client, MqttWireMessage message) {
-        logger.info("send MQTT message[{}] to client[{}]", message.getClass().getSimpleName(), client);
+        logger.info("send MQTT message[{}-{}] to client[{}]", message.getClass().getSimpleName(), message.getMessageId(), client);
     }
 
     @Override

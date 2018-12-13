@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import io.netty.util.ResourceLeakDetector;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +67,13 @@ public class MqttServer extends AbstractServer<HostPortSslConfiguration> impleme
 	 * 消息过滤器链
 	 */
 	private MessageFilterChain messageFilterChain;
-	
+	/**
+	 * qos 大于 0 的消息重发调度器
+	 */
 	private HashedTimeoutScheduler<MqttPublish> serverPublishScheduler;
-	
+	/**
+	 * qos 大于 0 的消息重发调度器
+	 */
 	private HashedTimeoutScheduler<MqttPubRel> serverPubRelScheduler;
 	
 	private static MqttPublishPersistence publishPersistor;
@@ -82,6 +87,8 @@ public class MqttServer extends AbstractServer<HostPortSslConfiguration> impleme
     }
     
     public static void startup(String[] args){
+    	// 开启内存泄漏提示
+		ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 		final ServerConfiguration configuration;
 		try {
 			boolean hasConfigOption = false;
@@ -102,6 +109,9 @@ public class MqttServer extends AbstractServer<HostPortSslConfiguration> impleme
 		
     	ListenersConfig listenersConfig = configuration.getListenersConfig();
 		List<HostPortSslConfiguration> configActives = listenersConfig.getActives();
+		if(configActives.isEmpty()){
+			logger.error("Not listeners active , Bye ...");
+		}
 		for (HostPortSslConfiguration config: configActives) {
 			if(!config.isSsl() && config.isSslRequired()){
 				logger.error("invalid [" + config.getProtocol() + "] security keyStore config.");
@@ -147,7 +157,7 @@ public class MqttServer extends AbstractServer<HostPortSslConfiguration> impleme
 	}
 
 	@Override
-    public void initListaners(){
+    public void initListeners(){
 		sessionListener = new MqttSessionListener(getProtocol());
 	}
 
@@ -255,8 +265,8 @@ public class MqttServer extends AbstractServer<HostPortSslConfiguration> impleme
 			pubrelPersistor = fileSystemMqttPersistence;
 			pubrelPersistor.open();
 		}
-		logger.info("mqtt publish message persist use: {}", publishPersistor.getClass());
-		logger.info("mqtt pubrel message persist use: {}", pubrelPersistor.getClass());
+		logger.info("MQTT Publish message persist use: {}", publishPersistor.getClass());
+		logger.info("MQTT PubRel message persist use: {}", pubrelPersistor.getClass());
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public class MqttSessionManager {
 		}
 	}
 
-	public static MqttSession unretain(String id) {
+	public static MqttSession unRetain(String id) {
 		if (id != null) {
 			return presentClients.remove(id);
 		}

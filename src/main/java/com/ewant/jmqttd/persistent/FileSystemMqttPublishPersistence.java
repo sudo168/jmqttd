@@ -141,7 +141,7 @@ public class FileSystemMqttPublishPersistence implements MqttPublishPersistence,
 				}
 			}
 		}catch(Exception e){
-			logger.error("persitnce error: " + e.getMessage(), e);
+			logger.error("persistence error: " + e.getMessage(), e);
 		}
 	}
 	

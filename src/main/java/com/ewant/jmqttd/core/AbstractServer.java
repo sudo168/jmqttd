@@ -3,6 +3,7 @@ package com.ewant.jmqttd.core;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 
+import com.ewant.jmqttd.handler.MqttHttpHandlerChainAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +68,7 @@ public abstract class AbstractServer<T extends HostPortSslConfiguration> {
                 return  new MqttWebSocketHandlerChainAdapter();
             case HTTP:
             case HTTPS:
+                return new MqttHttpHandlerChainAdapter();
             default:
                 return null;
         }
@@ -111,7 +113,7 @@ public abstract class AbstractServer<T extends HostPortSslConfiguration> {
 
             initGroups();
 
-            initListaners();
+            initListeners();
 
             initInterceptors();
             
@@ -203,7 +205,7 @@ public abstract class AbstractServer<T extends HostPortSslConfiguration> {
         return configuration;
     }
 
-    public abstract void initListaners();
+    public abstract void initListeners();
 
     public abstract void initInterceptors();
     

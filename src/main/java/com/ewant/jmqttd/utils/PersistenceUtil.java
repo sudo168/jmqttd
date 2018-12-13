@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.ewant.jmqttd.codec.message.MqttPublish;
+import com.ewant.jmqttd.persistent.FileSystemMqttPublishPersistence;
 import com.ewant.jmqttd.server.mqtt.MqttSession;
 
 public class PersistenceUtil {
@@ -35,7 +36,7 @@ public class PersistenceUtil {
 	 * 存储的时候，需要解析出clientId，因此 分隔符号不要轻易改
 	 * @param clientId
 	 * @param messageId
-	 * @see FileSystemMqttPersistence.run()
+	 * @see FileSystemMqttPublishPersistence.run()
 	 * @return
 	 */
 	public static String getTempStoreKey(String clientId, String topicName, int messageId){

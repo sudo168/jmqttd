@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://www.cnblogs.com/chrischennx/p/6781574.html -->
-<configuration>
+<configuration debug="false">
+    <conversionRule conversionWord="clr" converterClass="com.ewant.jmqttd.logger.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="com.ewant.jmqttd.logger.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="com.ewant.jmqttd.logger.ExtendedWhitespaceThrowableProxyConverter" />
     <property name="LOG_HOME" value="/temp/jmqttd/logs" />
     <property name="FILE_NAME" value="jmqttd-info" />
+    <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{40} >%4line){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{40} >%4line : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+            <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
         </layout>
     </appender>
     <appender name="FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -18,7 +23,7 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %level %logger - %msg%n</Pattern>
+            <Pattern>${FILE_LOG_PATTERN}</Pattern>
         </layout>
     </appender>
 	<logger name="java.sql" level="DEBUG"></logger>

@@ -30,7 +30,7 @@ public class AccessControlConfig {
 
     private Map<Interceptor, AclPermissionAccess> interceptorPermissionAccess = new HashMap<>();
 
-    private List<AclPermissionAccess> permisions = new ArrayList<>();
+    private List<AclPermissionAccess> permissions = new ArrayList<>();
     
     private AclPermissionAccess defaultConnectPermissionAccess;
 
@@ -41,11 +41,11 @@ public class AccessControlConfig {
 		this.defaultConnectPermissionAccess.setAction(AclPermissionAccess.AclAction.CONN);
     }
 
-    public void addPermision(AclPermissionAccess permisionAccess) {
-        permisions.add(permisionAccess);
+    public void addPermission(AclPermissionAccess permissionAccess) {
+        permissions.add(permissionAccess);
     }
     
-    public AclPermissionAccess getPermision(Interceptor interceptor) {
+    public AclPermissionAccess getPermission(Interceptor interceptor) {
     	return interceptorPermissionAccess.get(interceptor);
     }
 
@@ -71,12 +71,12 @@ public class AccessControlConfig {
 
     public void init(ConfigParseResult<AccessControlConfig> configParseResult){
 
-        List<AclPermissionAccess> aclConfigPermisions = this.permisions;
-        if(aclConfigPermisions == null || aclConfigPermisions.isEmpty()){
+        List<AclPermissionAccess> aclConfigPermissions = this.permissions;
+        if(aclConfigPermissions == null || aclConfigPermissions.isEmpty()){
             configParseResult.addCause(new ConfigParseException("empty acl config rule."));
             return;
         }
-        for(AclPermissionAccess permisionAccess : aclConfigPermisions){
+        for(AclPermissionAccess permisionAccess : aclConfigPermissions){
             AclPermissionAccess.AclAction accessAction = permisionAccess.getAction();
             switch (accessAction){
                 case PUB:

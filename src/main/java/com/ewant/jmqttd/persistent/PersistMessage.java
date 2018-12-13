@@ -4,13 +4,8 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.util.JdbcConstants;
 
 /**
  * 对收到的所有publish消息进行存储。
@@ -148,82 +143,8 @@ public class PersistMessage {
  + "time timestamp NOT NULL comment '发送时间'"
  + ")engine=InnoDB charset=UTF8;";
 		
-		List<SQLStatement> parseStatements = SQLUtils.parseStatements(sql , JdbcConstants.MYSQL);
+		// List<SQLStatement> parseStatements = SQLUtils.parseStatements(sql , JdbcConstants.MYSQL);
 		
-		byte[] bytes = "和记快餐店".getBytes("UTF-8");
-		
-		DataOutputStream out=new DataOutputStream(new FileOutputStream("test-byte.db"));
-		out.writeByte(0xAB);
-		out.writeByte(0x02);
-		out.writeByte(0xA8);
-		out.writeByte(0xA4);
-		out.write(bytes);
-		
-		RandomAccessFile in=new RandomAccessFile("test-byte.db","r");
-		
-		in.seek(4);
-		long length = in.length();
-		byte[] bs = new byte[(int) (length - 4)];
-		for(int i = 0;i < length - 4;i++){
-			bs[i] = in.readByte();
-		}
-		
-		String string = new String(bs);
-		
-		int hashCode = "1651566515656655156561".hashCode();
-		System.out.println(hashCode);
-		System.out.println(Integer.toBinaryString(hashCode));
-		System.out.println(Integer.toHexString(hashCode));
-		System.out.println(Integer.toHexString(hashCode & 0xFF));
-		System.out.println(Integer.toHexString(hashCode >> 8 & 0xFF));
-		System.out.println(Integer.toHexString(hashCode >> 16 & 0xFF));
-		System.out.println(Integer.valueOf("52617f71", 16));
-		
-		String[] baseData = new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",  
-                "q", "r", "s", "t", "u", "v", "w", "x", "y", "z","+", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",  
-                "=","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",  
-                "U", "V", "W", "X", "Y", "Z","~","!","@","#","$","%","^","&","*","(",")","-","\\","/",";",":","'","\"",
-                "{","}","[","]","<",">","?",".",","
-        };
-		int n = baseData.length - 1;
-		String url = "";
-		Map<Integer, String> map = new HashMap<>();
-		Map<Integer, String> rep = new HashMap<>();
-		Random random = new Random();
-		long start = System.currentTimeMillis();
-		//int r = 0;  1048575
-		//32^6=1073741824 64^6=68719476736 Integer.MAX_VALUE=2147483647
-		double max = 65535;
-		for (int t = 0; t < max; t++) {
-			for (int i = 0; i < 50; i++) {
-				url += baseData[random.nextInt(n)];
-			}
-			int index = indexFor(hash(url.hashCode()));
-			if (map.containsKey(index)) {
-				//System.out.println("已有：" + map.get(index) + " >> " + index);
-				//System.out.println("重复：" + url + " >> " + index);
-				rep.put(index, url);
-				//r++;// 避免两次重复
-			}else{
-				map.put(index, url);
-			}
-			url = "";
-		}
-		System.out.println("总 数：" + max);
-		System.out.println("有效值：" + map.size());
-		System.out.println("重复值：" + rep.size());
-		System.out.println("有效率：" + (map.size()/max) * 100);
-		System.out.println("重复率：" + (rep.size()/max) * 100);
-		System.out.println("重复/有效百分比：" + (rep.size()/(map.size()*1D)) * 100);
-		System.out.println("耗时：" + (System.currentTimeMillis() - start));
 	}
 	
-	static int hash(int h) {  
-        h ^= (h >>> 20) ^ (h >>> 12);  
-        return h ^ (h >>> 7) ^ (h >>> 4);  
-    }
-	
-	static int indexFor(int h) {  
-        return h & 0xFFFFF;  
-    }
 }

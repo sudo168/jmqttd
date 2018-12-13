@@ -1,78 +1,70 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.ewant</groupId>
-  <artifactId>jmqttd</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-    <modules>
-        <module>..</module>
-    </modules>
-    <packaging>pom</packaging>
+    <groupId>com.ewant</groupId>
+    <artifactId>jmqttd</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-  <name>jmqttd</name>
-  <url>http://maven.apache.org</url>
-  
-  <properties>
+    <name>jmqttd</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
      <skipTests>true</skipTests>
      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
      <netty.version>4.1.20.Final</netty.version>
-  </properties>
+    </properties>
 
-  <dependencies>
+    <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${netty.version}</version>
         </dependency>
-        <dependency>
-        	<groupId>net.ewant</groupId>
-			<artifactId>edb</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <!-- <dependency>
+        <!--<dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-            <version>1.1.1</version>
-        </dependency> -->
-		<dependency>
-		    <groupId>ch.qos.logback</groupId>
-		    <artifactId>logback-classic</artifactId>
-		    <version>1.2.3</version>
-		</dependency>
+            <version>1.2.0</version>
+        </dependency>-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.3</version>
         </dependency>
-		        
+
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>3.6.2</version>
         </dependency>
-		<dependency>
-		    <groupId>net.sf.ehcache</groupId>
-		    <artifactId>ehcache</artifactId>
-		    <version>2.10.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.5</version>
-		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>2.10.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.5</version>
+        </dependency>
+        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>3.2.5</version>
         </dependency>
-      <!--<dependency>
+        <!--<dependency>
           <groupId>xuggle</groupId>
           <artifactId>xuggle-xuggler</artifactId>
           <version>5.4</version>
-      </dependency>-->
-  </dependencies>
+        </dependency>-->
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -80,7 +72,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>${java.version}</source>
+                    <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
             </plugin>

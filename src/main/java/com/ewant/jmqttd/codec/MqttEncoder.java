@@ -15,12 +15,12 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 
 public class MqttEncoder extends MessageToMessageEncoder<MqttWireMessage> {
 
-	private ProtocolMessageWrapper wraper;
+	private ProtocolMessageWrapper wrapper;
 
 	private MqttSessionListener sessionListener;
 
-	public MqttEncoder(ServerProtocol protocol, ProtocolMessageWrapper wraper){
-		this.wraper = wraper;
+	public MqttEncoder(ServerProtocol protocol, ProtocolMessageWrapper wrapper){
+		this.wrapper = wrapper;
 		sessionListener = MqttServerContext.getServer(protocol).getSessionListener();
 	}
 	
@@ -36,16 +36,14 @@ public class MqttEncoder extends MessageToMessageEncoder<MqttWireMessage> {
 			byte[] encode = msg.encode();
 			buffer = ctx.alloc().buffer(encode.length);
 			buffer.writeBytes(encode);
-			out.add(wraper.wraperMessage(buffer));
+			out.add(wrapper.wrapperMessage(buffer));
 			sessionListener.onSend(MqttSessionManager.getSession(ctx.channel()), msg);
 		}catch (MqttEncodeException e){
 			sessionListener.onSessionException(ctx.channel(), MqttSessionManager.getSession(ctx.channel()), e);
 		}catch (Exception e){
 			sessionListener.onSessionException(ctx.channel(), MqttSessionManager.getSession(ctx.channel()), e);
 		}finally {
-			if(buffer != null){
-				//ReferenceCountUtil.release(buffer); 这里不能释放释放了就没东西写出去了。这里申请的内存，会在websocket编码时释放
-			}
+			//ReferenceCountUtil.release(buffer); 这里不能释放释放了就没东西写出去了。这里申请的内存，放到out去以后框架会帮我们释放
 		}
 	}
 

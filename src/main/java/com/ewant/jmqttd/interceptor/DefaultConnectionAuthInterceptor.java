@@ -4,8 +4,12 @@ import com.ewant.jmqttd.codec.MqttCodecUtils;
 import com.ewant.jmqttd.codec.MqttException;
 import com.ewant.jmqttd.config.impl.AclPermissionAccess;
 import com.ewant.jmqttd.server.mqtt.MqttSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultConnectionAuthInterceptor implements ConnectionAuthInterceptor {
+
+	Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private String username;
 	private String password;
@@ -19,8 +23,13 @@ public class DefaultConnectionAuthInterceptor implements ConnectionAuthIntercept
 	
     @Override
     public boolean validClientId(MqttSession client, AclPermissionAccess permissionAccess) throws MqttException {
-        return MqttCodecUtils.isValidClientId(client.getVersion(), client.getId());
-    }
+		try {
+			return MqttCodecUtils.isValidClientId(client.getVersion(), client.getId());
+		} catch (MqttException e) {
+			logger.error(e.getMessage());
+		}
+		return false;
+	}
 
     @Override
     public boolean validUsernamePassword(MqttSession client, AclPermissionAccess permissionAccess) throws MqttException {

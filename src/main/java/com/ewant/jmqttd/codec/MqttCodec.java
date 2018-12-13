@@ -6,8 +6,8 @@ import io.netty.channel.CombinedChannelDuplexHandler;
 
 public class MqttCodec extends CombinedChannelDuplexHandler<MqttDecoder, MqttEncoder> {
 
-	public MqttCodec(ServerProtocol protocol, ProtocolMessageWrapper wraper) {
-		super(new MqttDecoder(protocol), new MqttEncoder(protocol, wraper));
+	public MqttCodec(ServerProtocol protocol, ProtocolMessageWrapper wrapper) {
+		super(new MqttDecoder(protocol), new MqttEncoder(protocol, wrapper));
 	}
 	
 }

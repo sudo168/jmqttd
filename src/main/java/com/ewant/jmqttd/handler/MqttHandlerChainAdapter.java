@@ -14,7 +14,7 @@ public class MqttHandlerChainAdapter extends AbstractHandlerChainAdapter<HostPor
 	public void addSocketHandlers(ChannelPipeline pipeline) {
 		pipeline.addLast("MqttCodec", new MqttCodec(this.hostPortSsl.getProtocol(), new ProtocolMessageWrapper() {
 			@Override
-			public Object wraperMessage(ByteBuf mqttBuffer) {
+			public Object wrapperMessage(ByteBuf mqttBuffer) {
 				return mqttBuffer;
 			}
 		}));

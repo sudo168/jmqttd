@@ -16,7 +16,7 @@ public class AccessControlConfigParser extends ConfigParser<AccessControlConfig>
         AclPermissionAccess permisionAccess = new AclPermissionAccess();
         permisionAccess.setPermission(aclPermision);
 
-        config.addPermision(permisionAccess);
+        config.addPermission(permisionAccess);
 
         return permisionAccess;
     }

@@ -21,7 +21,7 @@ public abstract class MqttWireMessage {
 
 	private static int MAX_FRAME_LENGTH = 0xFFFFFFF;// 268435455
 	
-	private static int MAX_MSG_ID = 0xFFFF;// 65535
+	public static int MAX_MSG_ID = 0xFFFF;// 65535
 	
 	private MqttFixedHeader fixedHeader;// first byte [fixed header]
 	

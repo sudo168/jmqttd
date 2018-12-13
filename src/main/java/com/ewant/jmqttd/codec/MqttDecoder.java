@@ -46,8 +46,6 @@ public class MqttDecoder extends ByteToMessageDecoder {
 			sessionListener.onSessionException(ctx.channel(), client, e);
 		} catch (Exception e) {
 			sessionListener.onSessionException(ctx.channel(), client, e);
-		} finally {
-			ReferenceCountUtil.release(in);
 		}
 	}
 

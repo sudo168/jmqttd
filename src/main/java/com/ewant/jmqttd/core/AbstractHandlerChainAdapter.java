@@ -83,7 +83,7 @@ public abstract class AbstractHandlerChainAdapter<T extends HostPortSslConfigura
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(ks, configuration.getKeyStorePassword().toCharArray());
 
-        SSLContext sslContext = SSLContext.getInstance("TLSv1");
+        SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(kmf.getKeyManagers(), managers, null);
         return sslContext;
     }

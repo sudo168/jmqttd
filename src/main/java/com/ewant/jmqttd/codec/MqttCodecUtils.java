@@ -34,13 +34,20 @@ public class MqttCodecUtils {
 
     public static boolean isValidClientId(MqttVersion mqttVersion, String clientId) throws MqttException{
         if (mqttVersion == MqttVersion.MQTT_31) {
-            return clientId != null && clientId.length() >= MIN_CLIENT_ID_LENGTH &&
+            boolean valid = clientId != null && clientId.length() >= MIN_CLIENT_ID_LENGTH &&
                     clientId.length() <= MAX_CLIENT_ID_LENGTH;
+            if(!valid){
+                throw new MqttException("Invalid client id [" + clientId + "] in mqtt version " + mqttVersion + " . Support length between 1 and 23");
+            }
+            return true;
         }
         if (mqttVersion == MqttVersion.MQTT_311) {
             // In 3.1.3.1 Client Identifier of MQTT 3.1.1 specification, The Server MAY allow ClientId’s
             // that contain more than 23 encoded bytes. And, The Server MAY allow zero-length ClientId.
-            return clientId != null;
+            if(clientId == null || clientId.length() == 0){
+                throw new MqttException("Client id [" + clientId + "] must be not empty in mqtt version " + mqttVersion);
+            }
+            return true;
         }
         throw new MqttException(mqttVersion + " is unknown mqtt version");
     }

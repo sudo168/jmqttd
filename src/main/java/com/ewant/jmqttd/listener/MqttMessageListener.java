@@ -1,7 +1,11 @@
 package com.ewant.jmqttd.listener;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import com.ewant.jmqttd.cluster.Peer;
+import com.ewant.jmqttd.server.mqtt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +30,7 @@ import com.ewant.jmqttd.core.ServerProtocol;
 import com.ewant.jmqttd.interceptor.AccessControlChain;
 import com.ewant.jmqttd.interceptor.ConnectionAuthChain;
 import com.ewant.jmqttd.persistent.MqttPublishPersistence;
-import com.ewant.jmqttd.server.mqtt.MqttServer;
-import com.ewant.jmqttd.server.mqtt.MqttServerContext;
-import com.ewant.jmqttd.server.mqtt.MqttSession;
 import com.ewant.jmqttd.server.mqtt.MqttSession.State;
-import com.ewant.jmqttd.server.mqtt.MqttSessionManager;
-import com.ewant.jmqttd.server.mqtt.TopicManager;
 import com.ewant.jmqttd.utils.PersistenceUtil;
 import com.ewant.jmqttd.utils.ProtocolUtil;
 import com.ewant.jmqttd.utils.ReflectUtil;
@@ -57,14 +56,14 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 		MqttPublish oldMessage = mqttPersistence.get(storeKey);
 		if(!message.isDuplicate() && oldMessage == null){
 			// TODO 存储消息。收到的所有消息都要存储，不管QoS
-			mqttPersistence.put(storeKey, message);
+			//mqttPersistence.put(storeKey, message);
 		}
 		// 当QoS为0，(将消息发给订阅者) 不需要回复
 		// 当QoS为1，(保存PUBLISH消息) (将消息发给订阅者) 回复PUBACK，发送者收到PUBACK后丢弃发送的PUBLISH消息
 		// 当QoS为2，(保存PUBLISH消息) 回复PUBREC，待再收到PUBREL（QoS=1）后(将消息发给订阅者) 回复PUBCOMP，发送者收到PUBCOMP后丢弃发送的PUBLISH消息
 		// 当QoS > 0 , 需要带上MessageID
-		MqttQoS qos = message.getQos();
 		boolean canDispatch = true;
+		MqttQoS qos = message.getQos();
 		if(qos == MqttQoS.AT_LEAST_ONCE){
 			client.send(new MqttPubAck(message.getMessageId()));
 			if(oldMessage != null){
@@ -81,12 +80,38 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 				message.countUpAckState();
 			}
 		}
-		if (canDispatch) {
-			// 集群消息
-			if(this.server.getProtocol() == ServerProtocol.CLUSTER){
-				TopicManager.systemMatch(client, message.getTopic().getName());
-			}else{
-				TopicManager.clientMatch(client, message.getTopic().getName());
+		if(!canDispatch){
+			return;
+		}
+
+		// 消息分发，当没有人订阅时，消息是否保存？保存多少？保存多久？
+
+		//1. 集群消息
+		if(this.server.getProtocol() == ServerProtocol.CLUSTER){
+			boolean clusterDataSyn = TopicManager.isClusterDataSync(message.getTopic().getName());
+			if(!clusterDataSyn){// 其他集群控制消息
+				// TODO
+				return;
+			}
+		}
+
+		//2. 需要发往对端的消息
+		List<TopicMapping> topicMappings = TopicManager.clientMatch(message.getTopic().getName());
+		if(topicMappings != null && !topicMappings.isEmpty()){
+			for(TopicMapping tm : topicMappings){
+				Map<String, Integer> subscribers = tm.getSubscribers();
+				if(subscribers != null && !subscribers.isEmpty()){
+					for(String clientId : subscribers.keySet()){
+						MqttSession session = MqttSessionManager.getSession(clientId);
+						if(session != null){// TODO qos1、qos2消息
+							session.send(message);
+						}
+					}
+				}
+				Collection<Peer> routeTable = tm.getRouteTable();
+				for(Peer peer : routeTable){// 其他集群节点的订阅者
+					System.out.println();
+				}
 			}
 		}
 	}
@@ -147,7 +172,7 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 			if(current == null){
 				throw new MqttException("MQTT connect packet arrived after connection timeout[" + (server.getConfiguration().getServerConfig().getConnectTimeout()) + "s]");
 			}
-			MqttSession oldSession = MqttSessionManager.unretain(current.getId());
+			MqttSession oldSession = MqttSessionManager.unRetain(current.getId());
 			if(current.isCleanSession()){
 				if(oldSession != null){
 					oldSession.close();
@@ -209,7 +234,6 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 
 	public void onPubAck(MqttSession client, MqttPubAck message) {
 		// TODO in client mode, discard the publish message
-		
 	}
 
 	public void onPubRec(MqttSession client, MqttPubRec message) {

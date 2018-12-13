@@ -43,24 +43,24 @@ public class AccessControlChain {
     	if(aclConfig == null || accessControlInterceptors == null || accessControlInterceptors.isEmpty()){
     		return true;
     	}
-    	AclPermissionAccess denyPermision = null;
+    	AclPermissionAccess denyPermission = null;
     	boolean result = true;
     	for (AccessControlInterceptor accessControlInterceptor : accessControlInterceptors) {
-    		AclPermissionAccess permision = aclConfig.getPermision(accessControlInterceptor);
-    		if(permision.getAction() != AclPermissionAccess.AclAction.SUB && accessControlInterceptor.matchSession(client, permision)){
+    		AclPermissionAccess permission = aclConfig.getPermission(accessControlInterceptor);
+    		if(permission.getAction() != AclPermissionAccess.AclAction.SUB && accessControlInterceptor.matchSession(client, permission)){
     			try {
-					result = accessControlInterceptor.canPublish(client, publish.getTopic(), permision);
+					result = accessControlInterceptor.canPublish(client, publish.getTopic(), permission);
 				} catch (Exception e) {
 					result = false;
 					logger.error("session: " + client.getId() + "ip: " + client.getIP() + ", execute Method:" + accessControlInterceptor.getClass().getName() + ".canPublish(); cause: " + e.getMessage() , e);
 				}
     			if(!result){
-    				denyPermision = permision;
+    				denyPermission = permission;
     			}
     		}
 		}
     	if(!result){
-			logger.info("permission deny session: {} ip:{}, publish topic:{}. acl:{}", client.getId(), client.getIP(), publish.getTopic().getName(), denyPermision);
+			logger.info("permission deny session: {} ip:{}, publish topic:{}. acl:{}", client.getId(), client.getIP(), publish.getTopic().getName(), denyPermission);
 		}
         return result;
     }
@@ -72,16 +72,16 @@ public class AccessControlChain {
     		hasAcl = false;
     	}
     	List<Integer> resultCodes = new ArrayList<>();
-    	AclPermissionAccess denyPermision = null;
+    	AclPermissionAccess denyPermission = null;
     	int notAllowSub = 0;
     	for (MqttTopic subTopic : subscribe.getSubTopic()) {
     		if(hasAcl){
     			for (AccessControlInterceptor accessControlInterceptor : accessControlInterceptors) {
-            		AclPermissionAccess permision = aclConfig.getPermision(accessControlInterceptor);
-            		if(permision.getAction() != AclPermissionAccess.AclAction.PUB && accessControlInterceptor.matchSession(client, permision)){
+            		AclPermissionAccess permission = aclConfig.getPermission(accessControlInterceptor);
+            		if(permission.getAction() != AclPermissionAccess.AclAction.PUB && accessControlInterceptor.matchSession(client, permission)){
             			boolean canSubscribe;
     					try {
-    						canSubscribe = accessControlInterceptor.canSubscribe(client, subTopic, permision);
+    						canSubscribe = accessControlInterceptor.canSubscribe(client, subTopic, permission);
     					} catch (Exception e) {
     						canSubscribe = false;
     						logger.error("session: " + client.getId() + "ip: " + client.getIP() + ", execute Method:" + accessControlInterceptor.getClass().getName() + ".canSubscribe(); cause: " + e.getMessage() , e);
@@ -91,15 +91,15 @@ public class AccessControlChain {
             				client.sub(subTopic);
             			}else{
             				notAllowSub = MqttSubAck.SUB_NOT_ALLOW;
-            				denyPermision = permision;
+            				denyPermission = permission;
             			}
             		}
         		}
     		}
     		if(notAllowSub == MqttSubAck.SUB_NOT_ALLOW){
     			resultCodes.add(notAllowSub);
-    			notAllowSub = 0;
-    			logger.info("permission deny session: {} ip:{}, subscribe topic:{}. acl:{}", client.getId(), client.getIP(), subscribe.getSubTopic(), denyPermision);
+    			notAllowSub = 0;// reset state
+    			logger.info("permission deny session: {} ip:{}, subscribe topic:{}. acl:{}", client.getId(), client.getIP(), subscribe.getSubTopic(), denyPermission);
     		}else{
     			resultCodes.add(subTopic.getQos().value());
     			// init sub trie

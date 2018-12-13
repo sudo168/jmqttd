@@ -42,8 +42,8 @@ public class ConnectionAuthChain {
     	}
     	boolean result = true;
     	for (ConnectionAuthInterceptor connectionAuthInterceptor : connectionAuthInterceptors) {
-    		if(connectionAuthInterceptor.matchSession(client, aclConfig.getPermision(connectionAuthInterceptor))){
-    			result = connectionAuthInterceptor.validClientId(client, aclConfig.getPermision(connectionAuthInterceptor));
+    		if(connectionAuthInterceptor.matchSession(client, aclConfig.getPermission(connectionAuthInterceptor))){
+    			result = connectionAuthInterceptor.validClientId(client, aclConfig.getPermission(connectionAuthInterceptor));
     		}
 		}
         return result;
@@ -59,8 +59,8 @@ public class ConnectionAuthChain {
     	}
     	boolean result = true;
     	for (ConnectionAuthInterceptor connectionAuthInterceptor : connectionAuthInterceptors) {
-    		if(connectionAuthInterceptor.matchSession(client, aclConfig.getPermision(connectionAuthInterceptor))){
-    			result = connectionAuthInterceptor.validUsernamePassword(client, aclConfig.getPermision(connectionAuthInterceptor));
+    		if(connectionAuthInterceptor.matchSession(client, aclConfig.getPermission(connectionAuthInterceptor))){
+    			result = connectionAuthInterceptor.validUsernamePassword(client, aclConfig.getPermission(connectionAuthInterceptor));
     		}
 		}
         return result;
@@ -76,8 +76,8 @@ public class ConnectionAuthChain {
     	}
     	boolean result = true;
     	for (ConnectionAuthInterceptor connectionAuthInterceptor : connectionAuthInterceptors) {
-    		if(connectionAuthInterceptor.matchSession(client, aclConfig.getPermision(connectionAuthInterceptor))){
-    			result = connectionAuthInterceptor.authentication(client, aclConfig.getPermision(connectionAuthInterceptor));
+    		if(connectionAuthInterceptor.matchSession(client, aclConfig.getPermission(connectionAuthInterceptor))){
+    			result = connectionAuthInterceptor.authentication(client, aclConfig.getPermission(connectionAuthInterceptor));
     		}
 		}
         return result;

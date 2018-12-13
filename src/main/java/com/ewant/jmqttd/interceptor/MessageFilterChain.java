@@ -26,7 +26,7 @@ public class MessageFilterChain {
     	}
     	String filterMessage = message;
     	for (MessageFilterInterceptor messageFilterInterceptor : messageFilterInterceptors) {
-    		filterMessage = messageFilterInterceptor.doFilter(client, topic, filterMessage, aclConfig.getPermision(messageFilterInterceptor));
+    		filterMessage = messageFilterInterceptor.doFilter(client, topic, filterMessage, aclConfig.getPermission(messageFilterInterceptor));
 			if(filterMessage == null){
 				return null;
 			}

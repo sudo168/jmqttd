@@ -44,8 +44,13 @@ public class TopicManager {
 		clientTopicTrie.remove(unsubTopic, client.getId());
 		return true;
 	}
-	
-	public static List<TopicMapping> clientMatch(MqttSession client, String topic){
+
+	/**
+	 * 匹配订阅指定主题的客户端
+	 * @param topic
+	 * @return
+	 */
+	public static List<TopicMapping> clientMatch(String topic){
 		return clientTopicTrie.search(topic);
 	}
 	
@@ -60,12 +65,11 @@ public class TopicManager {
 	}
 	
 	/**
-	 * 匹配系统主题
-	 * @param client
+	 * 集群中，匹配订阅指定系统主题的客户端
 	 * @param topic
 	 * @return
 	 */
-	public static List<TopicMapping> systemMatch(MqttSession client, String topic){
+	public static List<TopicMapping> systemMatch(String topic){
 		return systemTopicTrie.search(topic);
 	}
 	

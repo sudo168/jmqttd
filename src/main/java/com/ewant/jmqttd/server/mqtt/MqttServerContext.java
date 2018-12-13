@@ -6,10 +6,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MqttServerContext {
 
-    private static Map<ServerProtocol, MqttServer> protocolServers = new HashMap<>();
+    private static Map<ServerProtocol, MqttServer> protocolServers = new ConcurrentHashMap<>();
 
     public static void addServer(MqttServer server){
         protocolServers.put(server.getProtocol(), server);

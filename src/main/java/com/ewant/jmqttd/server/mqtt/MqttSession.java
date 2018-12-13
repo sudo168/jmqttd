@@ -3,6 +3,7 @@ package com.ewant.jmqttd.server.mqtt;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -26,6 +27,8 @@ public class MqttSession implements Closeable{
 	private static final Logger logger = LoggerFactory.getLogger(MqttSession.class);
 	
 	private AtomicReference<State> sessionState = new AtomicReference<State>(State.UN_ACTIVE);
+
+	private AtomicInteger messageIdHolder = new AtomicInteger();
 	
 	public enum State{
 		UN_ACTIVE,
@@ -70,7 +73,7 @@ public class MqttSession implements Closeable{
 			this.subTopics = new HashMap<>();
 			//TODO 在集群中广播客户端上线。目的是离线消息重传
 		}else{
-			throw new IllegalStateException("can not start seaaion. cause an unavailable state " + sessionState.get());
+			throw new IllegalStateException("can not start session. cause an unavailable state " + sessionState.get());
 		}
 	}
 	
@@ -173,11 +176,27 @@ public class MqttSession implements Closeable{
 		return willMessage;
 	}
 
-	public void send(MqttWireMessage message) throws MqttException {
+	public void send(MqttWireMessage message, boolean resetMessageId) throws MqttException {
 		checkSessionStart();
+		if(resetMessageId && message instanceof MqttPublish){
+            message.setMessageId(getMessageId());
+		}
 		// TODO 统计发送数
 		this.channel.writeAndFlush(message);
 	}
+
+	public void send(MqttWireMessage message) throws MqttException {
+		this.send(message, false);
+	}
+
+	private int getMessageId(){
+        int msgId = messageIdHolder.incrementAndGet();
+        if(msgId > MqttWireMessage.MAX_MSG_ID){
+            messageIdHolder.compareAndSet(msgId, 0);
+            return getMessageId();
+        }
+        return msgId;
+    }
 	
 	public void setAttr(String key, Object value){
 		this.channel.attr(AttributeKey.newInstance(key)).set(value);
