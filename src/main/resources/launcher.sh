@@ -13,7 +13,7 @@ LC_ALL=zh_CN.UTF-8;export LC_ALL
 #ulimit -n 102297
 
 #process name, need to change
-MAINPROG=com.ewant.jmqttd.server.ServerBootstrap
+MAINPROG=net.ewant.jmqttd.server.ServerBootstrap
 
 start() {
         echo "[`date`] Begin starting $MAINPROG ... "
