@@ -50,7 +50,7 @@ stop() {
 		return  0
 	fi
 	
-    kill -2 $PROGID
+    kill -9 $PROGID
     if [ $? -eq 0 ]
     then
 		echo "[`date`] Stop $MAINPROG success."
