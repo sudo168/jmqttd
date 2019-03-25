@@ -1,6 +1,6 @@
 @echo off
 set SHELL_PROG=./launcher.bat
-set classpath=%classpath%;./lib/*
+set classpath=%classpath%;./lib/*;../common-lib/*;../jdbc-lib/*;./mapper/
 set main=net.ewant.jmqttd.server.ServerBootstrap
 title %main% %1
 
