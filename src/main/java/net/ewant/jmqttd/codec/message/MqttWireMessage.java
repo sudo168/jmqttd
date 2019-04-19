@@ -20,7 +20,7 @@ import io.netty.buffer.ByteBuf;
  */
 public abstract class MqttWireMessage {
 
-	private static int MAX_FRAME_LENGTH = 0xFFFFFFF;// 268435455
+	private static int MAX_FRAME_LENGTH = 0xFFFFFFF;// 268435455=256M
 	
 	public static int MAX_MSG_ID = 0xFFFF;// 65535
 	
@@ -74,7 +74,7 @@ public abstract class MqttWireMessage {
 				multiplier *= 128;
 			} while ((digit & 0x80) != 0);
 			
-			if(length > MAX_FRAME_LENGTH)throw new InvalidObjectException("Remaining Length ["+length+"] great than MAX_FRAME_LENGTH ["+MAX_FRAME_LENGTH+"]");
+			if(length > MAX_FRAME_LENGTH)throw new InvalidObjectException("Remaining Length ["+length+"], has been exceeded. MAX_FRAME_LENGTH ["+MAX_FRAME_LENGTH+"]");
 			
 			MqttWireMessage result = null;
 			byte[] remainingData = new byte[length];

@@ -28,8 +28,9 @@ public class MqttWebSocketHandlerChainAdapter extends AbstractHandlerChainAdapte
 		//作用是将一个Http的消息组装成一个完整的HttpRequest或者HttpResponse
 		pipeline.addLast("httpObjectAggregator", new HttpObjectAggregator(8192));
         
-        //WebSocketServerProtocolHandler用于处理websocket将请求解析为WebSocketFrame，并默认处理Ping，Pong, 参数1为访问websocket时的uri，参数2为websocket 子协议
-        pipeline.addLast("webSocketServerProtocolHandler", new WebSocketServerProtocolHandler("/mqtt", "mqttv3.1,mqtt"));
+        // WebSocketServerProtocolHandler用于处理websocket将请求解析为WebSocketFrame，并默认处理Ping，Pong, 参数1为访问websocket时的uri，参数2为websocket 子协议
+		// web socket限制64KB，MQTT协议最大允许256MB（为安全起见，可以将此配置放到配置文件以方便调节）
+        pipeline.addLast("webSocketServerProtocolHandler", new WebSocketServerProtocolHandler("/mqtt", "mqttv3.1,mqtt", false, 65536));
         
         pipeline.addLast("WebSocketFrameDecoder", new WebSocketFrameDecoder());
 
