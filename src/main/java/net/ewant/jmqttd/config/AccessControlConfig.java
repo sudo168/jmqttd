@@ -76,13 +76,13 @@ public class AccessControlConfig {
             configParseResult.addCause(new ConfigParseException("empty acl config rule."));
             return;
         }
-        for(AclPermissionAccess permisionAccess : aclConfigPermissions){
-            AclPermissionAccess.AclAction accessAction = permisionAccess.getAction();
+        for(AclPermissionAccess permissionAccess : aclConfigPermissions){
+            AclPermissionAccess.AclAction accessAction = permissionAccess.getAction();
             switch (accessAction){
                 case PUB:
                 case SUB:
                 case PUBSUB:
-                    String typeValues = permisionAccess.getTypeValues();
+                    String typeValues = permissionAccess.getTypeValues();
                     if(typeValues != null && typeValues.trim().length() > 0){
                     	String[] interceptorGroup = typeValues.replaceAll(" ", "").split("\\|");
                     	for(String item : interceptorGroup){
@@ -92,34 +92,34 @@ public class AccessControlConfig {
                     			List<AccessControlInterceptor> accessControlInterceptorList = this.buildInterceptor(configParseResult, values, AccessControlInterceptor.class);
                     			for (AccessControlInterceptor accessControlInterceptor : accessControlInterceptorList){
                     				accessControlInterceptors.add(accessControlInterceptor);
-                    				interceptorPermissionAccess.put(accessControlInterceptor, permisionAccess);
+                    				interceptorPermissionAccess.put(accessControlInterceptor, permissionAccess);
                     			}
                     		}else if(item.startsWith(PATTERN_FLAG)){
                     			values[0] = values[0].replace(PATTERN_FLAG, "");
                     			PatternAccessControlInterceptor patternAccessControlInterceptor = new PatternAccessControlInterceptor(values);
                     			accessControlInterceptors.add(patternAccessControlInterceptor);
-                    			interceptorPermissionAccess.put(patternAccessControlInterceptor, permisionAccess);
+                    			interceptorPermissionAccess.put(patternAccessControlInterceptor, permissionAccess);
                     		}else{
                     			SimpleAccessControlInterceptor simpleAccessControlInterceptor = new SimpleAccessControlInterceptor(values);
                     			accessControlInterceptors.add(simpleAccessControlInterceptor);
-                    			interceptorPermissionAccess.put(simpleAccessControlInterceptor, permisionAccess);
+                    			interceptorPermissionAccess.put(simpleAccessControlInterceptor, permissionAccess);
                     		}
                     	}
                     }
                     if(accessAction != AclPermissionAccess.AclAction.SUB){
-                    	String msgFilter = permisionAccess.getMsgFilter();
+                    	String msgFilter = permissionAccess.getMsgFilter();
                     	if(msgFilter != null && msgFilter.trim().length() > 0){
                     		String[] mfs = msgFilter.replace(" ", "").replace(PLUGIN_FLAG, "").split(",");
                     		List<MessageFilterInterceptor> messageFilterInterceptorList = this.buildInterceptor(configParseResult, mfs, MessageFilterInterceptor.class);
                     		for (MessageFilterInterceptor messageFilterInterceptor : messageFilterInterceptorList){
                     			messageFilterInterceptors.add(messageFilterInterceptor);
-                    			interceptorPermissionAccess.put(messageFilterInterceptor, permisionAccess);
+                    			interceptorPermissionAccess.put(messageFilterInterceptor, permissionAccess);
                     		}
                     	}
                     }
                     break;
                 case CONN:
-                    typeValues = permisionAccess.getTypeValues();
+                    typeValues = permissionAccess.getTypeValues();
                     if(typeValues == null || typeValues.trim().length() == 0){
                     	continue;
                     }
@@ -131,17 +131,17 @@ public class AccessControlConfig {
                             List<ConnectionAuthInterceptor> connectionAuthInterceptorList = this.buildInterceptor(configParseResult, values, ConnectionAuthInterceptor.class);
                             for (ConnectionAuthInterceptor connectionAuthInterceptor : connectionAuthInterceptorList){
                             	connectionAuthInterceptors.add(connectionAuthInterceptor);
-                                interceptorPermissionAccess.put(connectionAuthInterceptor, permisionAccess);
+                                interceptorPermissionAccess.put(connectionAuthInterceptor, permissionAccess);
                             }
                         }else if(item.startsWith(PATTERN_FLAG)){
                         	values[0] = values[0].replace(PATTERN_FLAG, "");
                             PatternConnectionAuthInterceptor patternConnectionAuthInterceptor = new PatternConnectionAuthInterceptor(values);
                             connectionAuthInterceptors.add(patternConnectionAuthInterceptor);
-                            interceptorPermissionAccess.put(patternConnectionAuthInterceptor, permisionAccess);
+                            interceptorPermissionAccess.put(patternConnectionAuthInterceptor, permissionAccess);
                         }else{
                         	SimpleConnectionAuthInterceptor simpleConnectionAuthInterceptor = new SimpleConnectionAuthInterceptor(values);
                             connectionAuthInterceptors.add(simpleConnectionAuthInterceptor);
-                            interceptorPermissionAccess.put(simpleConnectionAuthInterceptor, permisionAccess);
+                            interceptorPermissionAccess.put(simpleConnectionAuthInterceptor, permissionAccess);
                         }
                     }
                     break;
@@ -164,7 +164,7 @@ public class AccessControlConfig {
                     if(!ReflectUtil.isSimpleInstance(pClass)){
                         configParseResult.addCause(new ConfigParseException("can not instantiation an abstract plugin : " + pluginName));
                         continue;
-                    }else if(type.isAssignableFrom(pClass)){
+                    }else if(!type.isAssignableFrom(pClass)){
                         configParseResult.addCause(new ConfigParseException("plugin : " + pluginName + " must implements " + type.getName()));
                         continue;
                     }

@@ -19,12 +19,12 @@ public class MessageFilterChain {
     	this.messageFilterInterceptors = messageFilterInterceptors;
     }
 
-    public String doFilter(MqttSession client, MqttTopic topic, String message){
+    public byte[] doFilter(MqttSession client, MqttTopic topic, byte[] message){
     	AccessControlConfig aclConfig = this.server.getConfiguration().getAclConfig();
     	if(aclConfig == null || messageFilterInterceptors == null || messageFilterInterceptors.isEmpty()){
     		return message;
     	}
-    	String filterMessage = message;
+		byte[] filterMessage = message;
     	for (MessageFilterInterceptor messageFilterInterceptor : messageFilterInterceptors) {
     		filterMessage = messageFilterInterceptor.doFilter(client, topic, filterMessage, aclConfig.getPermission(messageFilterInterceptor));
 			if(filterMessage == null){

@@ -6,5 +6,5 @@ import net.ewant.jmqttd.config.impl.AclPermissionAccess;
 import net.ewant.jmqttd.server.mqtt.MqttSession;
 
 public interface MessageFilterInterceptor extends Interceptor {
-    String doFilter(MqttSession client, MqttTopic topic, String message, AclPermissionAccess permissionAccess) throws MqttException;
+    byte[] doFilter(MqttSession client, MqttTopic topic, byte[] message, AclPermissionAccess permissionAccess) throws MqttException;
 }

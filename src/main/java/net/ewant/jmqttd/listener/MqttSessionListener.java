@@ -46,11 +46,13 @@ public class MqttSessionListener implements Closeable{
     private MqttServer server;
     private HashedTimeoutScheduler<MqttSession> scheduler;
     private MqttMessageListener messageListener;
+    private ClientSessionListener clientSessionListener;
 
     public MqttSessionListener(ServerProtocol protocol){
         this.server = MqttServerContext.getServer(protocol);
-        this.scheduler = new HashedTimeoutScheduler<MqttSession>(SchedulerKey.Type.CONNECT_TIMEOUT.name());
-        messageListener = new MqttMessageListener(protocol);
+        this.scheduler = new HashedTimeoutScheduler<>(SchedulerKey.Type.CONNECT_TIMEOUT.name());
+        this.messageListener = new MqttMessageListener(protocol);
+        this.clientSessionListener = new ClientSessionListenerWrapper(protocol);
     }
 
     /**
@@ -65,6 +67,7 @@ public class MqttSessionListener implements Closeable{
             sessionTimeoutDataHolder.getTimeout().cancel();
             MqttSession mqttSession = sessionTimeoutDataHolder.getData();
             mqttSession.start(connect);
+            this.clientSessionListener.onSessionOpen(mqttSession);
             return mqttSession;
         }
         return null;
@@ -106,6 +109,7 @@ public class MqttSessionListener implements Closeable{
         	}
         	SESSION_COUNT.decrementAndGet();
             client.close();
+            this.clientSessionListener.onSessionClose(client);
         }
     }
 
@@ -124,7 +128,7 @@ public class MqttSessionListener implements Closeable{
     }
 
     public void onMessage(Channel channel, MqttSession client, MqttWireMessage message){
-        logger.info("MQTT message[{}-{}] arrived from client[{}]", message.getClass().getSimpleName(), message.getMessageId(), client == null ? ProtocolUtil.toSessionId(channel) : client);
+        logger.debug("MQTT message[{}-{}] arrived from client[{}]", message.getClass().getSimpleName(), message.getMessageId(), client == null ? ProtocolUtil.toSessionId(channel) : client);
         MqttMessageType type = message.getType();
         // TODO 统计接收数
         if (type == MqttMessageType.CONNECT) {
@@ -160,7 +164,7 @@ public class MqttSessionListener implements Closeable{
     }
 
     public void onSend(MqttSession client, MqttWireMessage message) {
-        logger.info("send MQTT message[{}-{}] to client[{}]", message.getClass().getSimpleName(), message.getMessageId(), client);
+        logger.debug("send MQTT message[{}-{}] to client[{}]", message.getClass().getSimpleName(), message.getMessageId(), client);
     }
 
     @Override

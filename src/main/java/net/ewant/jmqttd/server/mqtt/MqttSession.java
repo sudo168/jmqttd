@@ -71,7 +71,6 @@ public class MqttSession implements Closeable {
 			this.cleanSession = conn.isCleanSession();
 			this.willMessage = conn.getWillMessage();
 			this.subTopics = new HashMap<>();
-			//TODO 在集群中广播客户端上线。目的是离线消息重传
 		}else{
 			throw new IllegalStateException("can not start session. cause an unavailable state " + sessionState.get());
 		}
