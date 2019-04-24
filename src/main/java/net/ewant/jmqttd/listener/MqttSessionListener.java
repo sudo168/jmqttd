@@ -68,6 +68,7 @@ public class MqttSessionListener implements Closeable{
             MqttSession mqttSession = sessionTimeoutDataHolder.getData();
             mqttSession.start(connect);
             this.clientSessionListener.onSessionOpen(mqttSession);
+            logger.info("MQTT session start [{}@{}] ", mqttSession.getId(), ProtocolUtil.toSessionId(channel));
             return mqttSession;
         }
         return null;
