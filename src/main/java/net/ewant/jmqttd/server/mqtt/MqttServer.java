@@ -140,6 +140,13 @@ public class MqttServer extends AbstractServer<HostPortSslConfiguration> impleme
 				mqttServer.start();
 			}
 		}
+
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				MqttServer.shutdown();
+			}
+		}));
     }
 
     public static ServerConfiguration parseConfig() throws ConfigParseException {
