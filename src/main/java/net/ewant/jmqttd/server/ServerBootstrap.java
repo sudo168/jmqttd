@@ -10,14 +10,6 @@ public class ServerBootstrap {
 
     	MqttServer.startup(args);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				MqttServer.shutdown();
-			}
-		}));
-
     }
 
 }

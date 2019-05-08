@@ -84,46 +84,34 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 		if(!canDispatch){
 			return;
 		}
+		dispatchMessage(client, message);
 
+	}
+
+	private void dispatchMessage(MqttSession client, MqttPublish message){
 		// 消息分发，当没有人订阅时，消息是否保存？保存多少？保存多久？
 
 		//1. 集群消息
+		boolean isFromPeer = false;
 		if(this.server.getProtocol() == ServerProtocol.CLUSTER){
 			boolean clusterDataSyn = TopicManager.isClusterDataSync(message.getTopic().getName());
 			if(!clusterDataSyn){// 其他集群控制消息
 				// TODO
 				return;
 			}
+			isFromPeer = true;
+		}else{// 非集群同步消息需要过滤
+			MessageFilterChain messageFilterChain = this.server.getMessageFilterChain();
+			byte[] bytes = messageFilterChain.doFilter(client, message.getTopic(), message.getPayload());
+			if(bytes == null){
+				// TODO 不用下发
+				return;
+			}
+			message.setPayload(bytes);
 		}
 
 		//2. 需要发往对端的消息（应当另起线程）
-		MessageFilterChain messageFilterChain = this.server.getMessageFilterChain();
-		byte[] bytes = messageFilterChain.doFilter(client, message.getTopic(), message.getPayload());
-		if(bytes == null){
-			// TODO 不用下发
-			return;
-		}
-		message.setPayload(bytes);
-
-		List<TopicMapping> topicMappings = TopicManager.clientMatch(message.getTopic().getName());
-		if(topicMappings != null && !topicMappings.isEmpty()){
-			for(TopicMapping tm : topicMappings){
-				Map<String, Integer> subscribers = tm.getSubscribers();
-				if(subscribers != null && !subscribers.isEmpty()){
-					for(String clientId : subscribers.keySet()){
-						MqttSession session = MqttSessionManager.getSession(clientId);
-						if(session != null){// TODO qos1、qos2消息 单独维护messageId
-							session.send(message);
-						}
-					}
-				}
-				Collection<Peer> routeTable = tm.getRouteTable();
-				for(Peer peer : routeTable){// 其他集群节点的订阅者
-					// TODO 将消息分发到其他节点（不用过滤，直接发送）
-					System.out.println();
-				}
-			}
-		}
+		MqttMessageDispatcher.dispatch(message, isFromPeer);
 	}
 
 	public void onPubRel(MqttSession client, MqttPubRel message) {
@@ -140,6 +128,7 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 			}else{
 				publish.countUpAckState();
 			}
+			dispatchMessage(client, publish);
 		}
 	}
 
