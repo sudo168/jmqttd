@@ -1,17 +1,20 @@
 package net.ewant.jmqttd.listener;
 
+import com.alibaba.fastjson.JSON;
+import net.ewant.jmqttd.codec.message.MqttPublish;
+import net.ewant.jmqttd.codec.message.MqttQoS;
+import net.ewant.jmqttd.codec.message.MqttTopic;
 import net.ewant.jmqttd.config.ConfigParseException;
 import net.ewant.jmqttd.config.ServerConfiguration;
 import net.ewant.jmqttd.config.impl.ClientConfig;
 import net.ewant.jmqttd.core.ServerProtocol;
-import net.ewant.jmqttd.server.mqtt.MqttServer;
-import net.ewant.jmqttd.server.mqtt.MqttServerContext;
-import net.ewant.jmqttd.server.mqtt.MqttSession;
+import net.ewant.jmqttd.server.mqtt.*;
 import net.ewant.jmqttd.utils.ReflectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 
 /**
  * Created by admin on 2019/4/18.
@@ -20,7 +23,6 @@ public class ClientSessionListenerWrapper implements ClientSessionListener {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttServer.class);
 
-    private static final String NOTIFY_TOPIC = "$sys/clients";
     private MqttServer server;
     private ClientSessionListener customListener;
 
@@ -36,7 +38,7 @@ public class ClientSessionListenerWrapper implements ClientSessionListener {
                 }
             } catch (Exception e) {}
             logger.info("MQTT client state notify use: topic->{}, plugin->{}",
-                    clientConfig.isUseTopicNotify() ? NOTIFY_TOPIC : "false",
+                    clientConfig.isUseTopicNotify() ? MqttSessionListener.NOTIFY_TOPIC : "false",
                     this.customListener != null ? this.customListener.getClass() : "not set");
         }
 
@@ -48,6 +50,7 @@ public class ClientSessionListenerWrapper implements ClientSessionListener {
         ClientConfig clientConfig = this.server.getConfiguration().getClientConfig();
         if(clientConfig != null && clientConfig.isUseTopicNotify()){
             // TODO
+            MqttMessageDispatcher.dispatch(MqttSessionListener.generaSessionNotifyMessage(session, false), false);
         }
         if(this.customListener != null){
             this.customListener.onSessionOpen(session);
@@ -60,6 +63,7 @@ public class ClientSessionListenerWrapper implements ClientSessionListener {
         ClientConfig clientConfig = this.server.getConfiguration().getClientConfig();
         if(clientConfig != null && clientConfig.isUseTopicNotify()){
             // TODO
+            MqttMessageDispatcher.dispatch(MqttSessionListener.generaSessionNotifyMessage(session, true), false);
         }
         if(this.customListener != null){
             this.customListener.onSessionClose(session);

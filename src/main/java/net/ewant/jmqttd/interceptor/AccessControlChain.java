@@ -1,25 +1,23 @@
 package net.ewant.jmqttd.interceptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.ewant.jmqttd.codec.message.MqttSubscribe;
-import net.ewant.jmqttd.codec.message.MqttTopic;
-import net.ewant.jmqttd.config.AccessControlConfig;
-import net.ewant.jmqttd.server.mqtt.MqttServer;
-import net.ewant.jmqttd.server.mqtt.MqttServerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alibaba.fastjson.JSON;
 import net.ewant.jmqttd.codec.MqttCodecUtils;
 import net.ewant.jmqttd.codec.MqttException;
 import net.ewant.jmqttd.codec.message.MqttPublish;
 import net.ewant.jmqttd.codec.message.MqttSubAck;
+import net.ewant.jmqttd.codec.message.MqttSubscribe;
+import net.ewant.jmqttd.codec.message.MqttTopic;
+import net.ewant.jmqttd.config.AccessControlConfig;
 import net.ewant.jmqttd.config.impl.AclPermissionAccess;
 import net.ewant.jmqttd.core.ServerProtocol;
+import net.ewant.jmqttd.server.mqtt.MqttServer;
+import net.ewant.jmqttd.server.mqtt.MqttServerContext;
 import net.ewant.jmqttd.server.mqtt.MqttSession;
-import net.ewant.jmqttd.server.mqtt.TopicManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccessControlChain {
 	
@@ -88,7 +86,6 @@ public class AccessControlChain {
     					}
             			if(canSubscribe){
             				notAllowSub = 0;
-            				client.sub(subTopic);
             			}else{
             				notAllowSub = MqttSubAck.SUB_NOT_ALLOW;
             				denyPermission = permission;
@@ -103,11 +100,7 @@ public class AccessControlChain {
     		}else{
     			resultCodes.add(subTopic.getQos().value());
     			// init sub trie
-    			if(this.server.getProtocol() == ServerProtocol.CLUSTER){
-    				TopicManager.systemSubscribe(client, subTopic);
-    			}else{
-    				TopicManager.clientSubscribe(client, subTopic);
-    			}
+				client.sub(subTopic);
     		}
 		}
     	logger.info("client: {}, subscribe: {}, resultCodes: {}", client.getId(), subscribe, JSON.toJSONString(resultCodes));

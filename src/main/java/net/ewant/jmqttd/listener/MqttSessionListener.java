@@ -3,25 +3,11 @@ package net.ewant.jmqttd.listener;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.ewant.jmqttd.codec.message.MqttSubscribe;
+import net.ewant.jmqttd.codec.message.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.ewant.jmqttd.codec.MqttException;
-import net.ewant.jmqttd.codec.message.MqttConnAck;
-import net.ewant.jmqttd.codec.message.MqttConnect;
-import net.ewant.jmqttd.codec.message.MqttMessageType;
-import net.ewant.jmqttd.codec.message.MqttPing;
-import net.ewant.jmqttd.codec.message.MqttPong;
-import net.ewant.jmqttd.codec.message.MqttPubAck;
-import net.ewant.jmqttd.codec.message.MqttPubComp;
-import net.ewant.jmqttd.codec.message.MqttPubRec;
-import net.ewant.jmqttd.codec.message.MqttPubRel;
-import net.ewant.jmqttd.codec.message.MqttPublish;
-import net.ewant.jmqttd.codec.message.MqttSubAck;
-import net.ewant.jmqttd.codec.message.MqttUnsubAck;
-import net.ewant.jmqttd.codec.message.MqttUnsubscribe;
-import net.ewant.jmqttd.codec.message.MqttWireMessage;
 import net.ewant.jmqttd.core.Closeable;
 import net.ewant.jmqttd.core.ServerProtocol;
 import net.ewant.jmqttd.scheduler.HashedTimeoutScheduler;
@@ -38,6 +24,8 @@ import net.ewant.jmqttd.utils.ReflectUtil;
 import io.netty.channel.Channel;
 
 public class MqttSessionListener implements Closeable{
+
+    static String NOTIFY_TOPIC = "$sys/clients";
 
     private Logger logger = LoggerFactory.getLogger(getClass());
     
@@ -171,5 +159,33 @@ public class MqttSessionListener implements Closeable{
     @Override
     public void close() {
         this.scheduler.shutdown();
+    }
+
+    public void onSubscribe(MqttSession session, MqttTopic subTopic){
+        if(subTopic.getName().equals(NOTIFY_TOPIC)){
+            // TODO 注意占用订阅线程
+            for(MqttSession client : MqttSessionManager.getClients()){
+                if(session != client){
+                    session.send(generaSessionNotifyMessage(client, false));
+                }
+            }
+        }
+    }
+
+    public void onUnSubscribe(MqttSession session, MqttTopic subTopic){
+    }
+
+    public static MqttPublish generaSessionNotifyMessage(MqttSession session, boolean isClose){
+        StringBuilder sb = new StringBuilder();
+        sb.append(session.getId());
+        if(!isClose){
+            sb.append(",");
+            sb.append(session.getIP());
+            sb.append(",");
+            sb.append(session.getUserName() == null ? "" : session.getUserName());
+            sb.append(",");
+            sb.append(session.getPassword() == null ? "" : session.getPassword());
+        }
+        return new MqttPublish(new MqttTopic(NOTIFY_TOPIC, MqttQoS.AT_LEAST_ONCE), false, sb.toString().getBytes());
     }
 }

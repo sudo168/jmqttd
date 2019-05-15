@@ -2,6 +2,7 @@ package net.ewant.jmqttd.server.mqtt;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,6 +26,8 @@ import io.netty.util.AttributeKey;
 public class MqttSession implements Closeable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MqttSession.class);
+
+	public static final AttributeKey<String> IP_KEY = AttributeKey.valueOf("_real_ip_");
 	
 	private AtomicReference<State> sessionState = new AtomicReference<State>(State.UN_ACTIVE);
 
@@ -81,12 +84,25 @@ public class MqttSession implements Closeable {
 	}
 	
 	public boolean sub(MqttTopic topic) {
+		if(this.protocol == ServerProtocol.CLUSTER){
+			TopicManager.systemSubscribe(this, topic);
+		}else{
+			TopicManager.clientSubscribe(this, topic);
+		}
 		subTopics.put(topic.getName(), topic);
+		MqttServerContext.getServer(protocol).getSessionListener().onSubscribe(this, topic);
 		return true;
 	}
 	
 	public MqttTopic unsub(String topic) {
-		return subTopics.remove(topic);
+		if(this.protocol == ServerProtocol.CLUSTER){
+			TopicManager.systemUnSubscribe(this, topic);
+		}else{
+			TopicManager.clientUnSubscribe(this, topic);
+		}
+		MqttTopic mqttTopic = subTopics.remove(topic);
+		MqttServerContext.getServer(protocol).getSessionListener().onUnSubscribe(this, mqttTopic);
+		return mqttTopic;
 	}
 	
 	public State getState() {
@@ -118,6 +134,10 @@ public class MqttSession implements Closeable {
 	}
 
 	public String getIP() {
+		String ip = channel.attr(IP_KEY).get();
+		if(ip != null){
+			return ip;
+		}
 		return ((InetSocketAddress) channel.remoteAddress()).getAddress().getHostAddress();
 	}
 	
@@ -250,6 +270,12 @@ public class MqttSession implements Closeable {
 		if(this.channel != null){
 			this.channel.close();
 			this.channel = null;
+		}
+		Iterator<String> iterator = subTopics.keySet().iterator();
+		while(iterator.hasNext()){
+			String next = iterator.next();
+			iterator.remove();
+			this.unsub(next);
 		}
 	}
 

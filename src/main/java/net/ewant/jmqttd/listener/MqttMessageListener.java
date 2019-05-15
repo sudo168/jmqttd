@@ -142,11 +142,6 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 		List<String> unSubTopic = message.getUnSubTopic();
 		for (String topic : unSubTopic) {
 			client.unsub(topic);
-			if(this.server.getProtocol() == ServerProtocol.CLUSTER){
-				TopicManager.systemUnSubscribe(client, topic);
-			}else{
-				TopicManager.clientUnSubscribe(client, topic);
-			}
 		}
 		logger.info("client: {}, unsubscribe: {}", client.getId(), JSON.toJSONString(unSubTopic));
 	}

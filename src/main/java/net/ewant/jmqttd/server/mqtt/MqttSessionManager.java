@@ -14,7 +14,7 @@ public class MqttSessionManager {
 	 */
 	private static Map<String,MqttSession> channelClients = PlatformDependent.newConcurrentHashMap();
 	/**
-	 * 正在连接中的客户端id映射
+	 * 连接成功的客户端id映射
 	 */
 	private static Map<String,MqttSession> idClients = PlatformDependent.newConcurrentHashMap();
 
