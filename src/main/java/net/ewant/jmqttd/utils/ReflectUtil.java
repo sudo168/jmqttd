@@ -295,13 +295,17 @@ public class ReflectUtil {
 	}
 
 	public static StackTraceElement getAvailableStack(Throwable cause){
+		StackTraceElement[] stackTraces = cause.getStackTrace();
+		if(stackTraces == null || stackTraces.length == 0){
+			return null;
+		}
 		String name = ReflectUtil.class.getPackage().getName();
 		String pname = name.substring(0, name.lastIndexOf("."));
-		for(StackTraceElement stackTraceElement: cause.getStackTrace()){
+		for(StackTraceElement stackTraceElement: stackTraces){
 			if(stackTraceElement.getClassName().contains(pname)){
 				return stackTraceElement;
 			}
 		}
-		return cause.getStackTrace()[0];
+		return stackTraces[0];
 	}
 }
