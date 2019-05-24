@@ -128,9 +128,6 @@ public class MqttConnect extends MqttWireMessage{
 			connectFlag |= 0x02;
 		}
 		if(willMessage != null){
-
-		}
-		if(willMessage != null){
 			String willTopic = willMessage.getTopic().getName();
 			MqttCodecUtils.isValidPublishTopicName(willTopic);
 			MqttQoS willQos = willMessage.getQos();

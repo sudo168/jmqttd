@@ -55,6 +55,9 @@ public class ProtocolUtil {
     }
     
     public static String toSessionId(Channel channel){
+        if(channel == null){
+            return null;
+        }
     	InetSocketAddress localAddress = (InetSocketAddress)channel.localAddress();
     	InetSocketAddress remoteAddress = (InetSocketAddress)channel.remoteAddress();
     	StringBuilder sb = new StringBuilder();

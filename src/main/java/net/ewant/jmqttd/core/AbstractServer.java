@@ -156,10 +156,10 @@ public abstract class AbstractServer<T extends HostPortSslConfiguration> {
     private void applyConnectionOptions(ServerBootstrap bootstrap) {
         SocketConfig config = configuration.getSocketConfig();
         bootstrap.childOption(ChannelOption.TCP_NODELAY, config.isTcpNoDelay());
-        if (config.getTcpSendBufferSize() != -1) {
+        if (config.getTcpSendBufferSize() > 0) {
             bootstrap.childOption(ChannelOption.SO_SNDBUF, config.getTcpSendBufferSize());
         }
-        if (config.getTcpReceiveBufferSize() != -1) {
+        if (config.getTcpReceiveBufferSize() > 0) {
             bootstrap.childOption(ChannelOption.SO_RCVBUF, config.getTcpReceiveBufferSize());
             bootstrap.childOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(config.getTcpReceiveBufferSize()));
         }

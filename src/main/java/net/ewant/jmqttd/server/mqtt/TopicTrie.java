@@ -235,9 +235,11 @@ public class TopicTrie {
         }
 
         public void remove() {
-            this.parent.removeChild(this);
-            if(this.parent.getChildren().isEmpty() && !this.parent.isEnd()){
-                this.parent.remove();
+            if(this.parent != null){
+                this.parent.removeChild(this);
+                if(this.parent.getChildren().isEmpty() && !this.parent.isEnd()){
+                    this.parent.remove();
+                }
             }
         }
     }

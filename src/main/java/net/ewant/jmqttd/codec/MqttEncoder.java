@@ -31,7 +31,7 @@ public class MqttEncoder extends MessageToMessageEncoder<MqttWireMessage> {
 	
 	@Override
 	protected void encode(ChannelHandlerContext ctx, MqttWireMessage msg, List<Object> out) throws Exception {
-		ByteBuf buffer = null;
+		ByteBuf buffer;
 		try {
 			byte[] encode = msg.encode();
 			buffer = ctx.alloc().buffer(encode.length);

@@ -1,17 +1,10 @@
 package net.ewant.jmqttd.codec.message;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.io.InvalidObjectException;
-import java.io.UnsupportedEncodingException;
-
 import net.ewant.jmqttd.codec.MqttCodecUtils;
-import net.ewant.jmqttd.codec.MqttDecodeException;
 import net.ewant.jmqttd.codec.MqttEncodeException;
 
-import io.netty.buffer.ByteBuf;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * mqtt协议包：固定头部  + 可变头部  + 消息体 
@@ -20,8 +13,6 @@ import io.netty.buffer.ByteBuf;
  */
 public abstract class MqttWireMessage {
 
-	private static int MAX_FRAME_LENGTH = 0xFFFFFFF;// 268435455=256M
-	
 	public static int MAX_MSG_ID = 0xFFFF;// 65535
 	
 	private MqttFixedHeader fixedHeader;// first byte [fixed header]
@@ -45,78 +36,6 @@ public abstract class MqttWireMessage {
 		this.fixedHeader = fixedHeader;
 		this.remainingLength = remainingLength;
 		this.remainingData = remainingData;
-	}
-	
-	public static MqttWireMessage decode(byte[] data){
-		ByteArrayInputStream bais = new ByteArrayInputStream(data);
-		return decode(bais);
-	}
-	
-	public static MqttWireMessage decode(ByteBuf buf){
-		byte[] bytes = new byte[buf.readableBytes()];
-		buf.readBytes(bytes);
-		return decode(bytes);
-	}
-	
-	public static MqttWireMessage decode(InputStream data){
-		try {
-			DataInputStream in = new DataInputStream(data);
-			//1. parse Fixed header
-			MqttFixedHeader fixedHeader = MqttCodecUtils.isValidFixedHeader(new MqttFixedHeader(in.readByte()));
-			MqttMessageType type = fixedHeader.getMessageType();
-		    //2. parse Remaining Length
-		    int multiplier = 1;
-			int length = 0;
-			byte digit = 0;
-			do {
-				digit = in.readByte();// 读取一个字节
-				length += (digit & 0x7f) * multiplier;
-				multiplier *= 128;
-			} while ((digit & 0x80) != 0);
-			
-			if(length > MAX_FRAME_LENGTH)throw new InvalidObjectException("Remaining Length ["+length+"], has been exceeded. MAX_FRAME_LENGTH ["+MAX_FRAME_LENGTH+"]");
-			
-			MqttWireMessage result = null;
-			byte[] remainingData = new byte[length];
-			in.readFully(remainingData, 0, length);
-			
-			if (type == MqttMessageType.CONNECT) {
-				result = new MqttConnect(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.CONNACK) {
-				result = new MqttConnAck(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.PUBLISH) {
-				result = new MqttPublish(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.PUBACK) {
-				result = new MqttPubAck(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.PUBREC) {
-				result = new MqttPubRec(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.PUBREL) {
-				result = new MqttPubRel(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.PUBCOMP) {
-				result = new MqttPubComp(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.SUBSCRIBE) {
-				result = new MqttSubscribe(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.SUBACK) {
-				result = new MqttSubAck(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.UNSUBSCRIBE) {
-				result = new MqttUnsubscribe(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.UNSUBACK) {
-				result = new MqttUnsubAck(fixedHeader, length, remainingData);
-			}else if (type == MqttMessageType.PING) {
-				result = new MqttPing();
-			}else if (type == MqttMessageType.PONG) {
-				result = new MqttPong();
-			}else if (type == MqttMessageType.DISCONNECT) {
-				result = new MqttDisconnect();
-			}else {
-				throw new MqttDecodeException("MQTT packet decode error ! not support type [" + type + "]");
-			}
-			return result;
-		} catch (MqttDecodeException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new MqttDecodeException("MQTT packet decode error ! " + e.getMessage(), e);
-		}
 	}
 
 	/**

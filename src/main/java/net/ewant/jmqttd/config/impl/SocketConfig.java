@@ -12,7 +12,7 @@ public class SocketConfig {
 
     private int soLinger = -1;
 
-    private boolean reuseAddress = false;
+    private boolean reuseAddress = true;
 
     private int backLog = 1024;
 
