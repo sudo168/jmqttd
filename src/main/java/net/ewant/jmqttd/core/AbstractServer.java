@@ -172,10 +172,10 @@ public abstract class AbstractServer<T extends HostPortSslConfiguration> {
 
     private void initGroups() {
         if (Epoll.isAvailable()) {
-            bossGroup = new EpollEventLoopGroup(configuration.getServerConfig().getAccptors(), new NameGroupThreadFactory(getProtocol().name() + "@epoll-accptor"));
+            bossGroup = new EpollEventLoopGroup(configuration.getServerConfig().getAcceptors(), new NameGroupThreadFactory(getProtocol().name() + "@epoll-accptor"));
             workerGroup = new EpollEventLoopGroup(configuration.getServerConfig().getWorkers(), new NameGroupThreadFactory(getProtocol().name() + "@epoll-worker"));
         } else {
-            bossGroup = new NioEventLoopGroup(configuration.getServerConfig().getAccptors(), new NameGroupThreadFactory(getProtocol().name() + "@nio-accptor"));
+            bossGroup = new NioEventLoopGroup(configuration.getServerConfig().getAcceptors(), new NameGroupThreadFactory(getProtocol().name() + "@nio-accptor"));
             workerGroup = new NioEventLoopGroup(configuration.getServerConfig().getWorkers(), new NameGroupThreadFactory(getProtocol().name() + "@nio-worker"));
         }
     }

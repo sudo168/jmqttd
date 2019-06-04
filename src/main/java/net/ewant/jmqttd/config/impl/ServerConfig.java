@@ -8,11 +8,15 @@ public class ServerConfig {
 	/**
 	 * 接收客户端连接线程数
 	 */
-	private int accptors = 2;
+	private int acceptors = 2;
 	/**
 	 * 处理客户端读写线程数
 	 */
 	private int workers = 8;
+	/**
+	 * 处理消息分发到客户端线程数
+	 */
+	private int dispatchers = 16;
 	/**
 	 * 整个消息队列长度
 	 */
@@ -71,12 +75,12 @@ public class ServerConfig {
 		this.password = password;
 	}
 
-	public int getAccptors() {
-		return accptors;
+	public int getAcceptors() {
+		return acceptors;
 	}
 
-	public void setAccptors(int accptors) {
-		this.accptors = accptors;
+	public void setAcceptors(int acceptors) {
+		this.acceptors = acceptors;
 	}
 
 	public int getWorkers() {
@@ -85,6 +89,14 @@ public class ServerConfig {
 
 	public void setWorkers(int workers) {
 		this.workers = workers;
+	}
+
+	public int getDispatchers() {
+		return dispatchers;
+	}
+
+	public void setDispatchers(int dispatchers) {
+		this.dispatchers = dispatchers;
 	}
 
 	public int getWindowSize() {

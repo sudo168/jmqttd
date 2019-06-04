@@ -72,7 +72,7 @@ public class MqttServer extends AbstractServer<HostPortSslConfiguration> impleme
 	 */
 	private HashedTimeoutScheduler<MqttPublish> serverPublishScheduler;
 	/**
-	 * qos 大于 0 的消息重发调度器
+	 * qos 大于 1 的消息重发调度器
 	 */
 	private HashedTimeoutScheduler<MqttPubRel> serverPubRelScheduler;
 	

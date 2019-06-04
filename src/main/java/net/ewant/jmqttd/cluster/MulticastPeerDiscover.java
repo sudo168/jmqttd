@@ -124,7 +124,6 @@ public class MulticastPeerDiscover implements PeerDiscover {
 	
 	/**
 	 * 根据最后心跳时间判断节点是否已失联
-	 * @param latestUpdateTime
 	 * @return true if No heartbeat for a long time
 	 */
 	protected final boolean stale(Peer peer) {
