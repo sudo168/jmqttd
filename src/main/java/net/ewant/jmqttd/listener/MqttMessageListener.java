@@ -222,8 +222,7 @@ public class MqttMessageListener implements MqttAckReceiveListener, MqttMessageA
 	}
 
 	public void onDisconnect(MqttSession client) {
-		client.updateState(State.DISCONNECT);
-		client.close();
+		// Nothing to do
 	}
 
 	public void onPubAck(MqttSession client, MqttPubAck message) {

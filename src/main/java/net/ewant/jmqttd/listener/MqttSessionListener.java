@@ -90,13 +90,10 @@ public class MqttSessionListener implements Closeable{
         logger.info("MQTT session open [{}] ", ProtocolUtil.toSessionId(channel));
     }
 
-    public void onSessionClose(Channel channel){
-        MqttSession client = MqttSessionManager.getSession(channel);
+    public void onSessionClose(MqttSession client, State state){
         if(client != null){
-        	if(client.getState() == State.ACTIVE){
-        		client.updateState(State.UNEXPECTED_HALT);
-        	}
-        	SESSION_COUNT.decrementAndGet();
+            SESSION_COUNT.decrementAndGet();
+            client.updateState(state);
             client.close();
             this.clientSessionListener.onSessionClose(client);
         }
@@ -106,10 +103,7 @@ public class MqttSessionListener implements Closeable{
         logger.error("MQTT server cause an exception : " + cause.getClass().getName()+ "[" + cause.getMessage() + "] at " + ReflectUtil.getAvailableStack(cause) + " [client in " + ProtocolUtil.toSessionId(channel) + " is " + (client == null ? "NULL" : client.getId()) + "]", cause);
         try {
             if(!(cause instanceof MqttException)){
-                if(client != null){
-                	client.updateState(State.ERROR);
-                    client.close();
-                }
+                this.onSessionClose(client, State.ERROR);
             }
         } catch (Exception e) {
             logger.error("MQTT session close error: " + e.getMessage(), e);
@@ -149,6 +143,7 @@ public class MqttSessionListener implements Closeable{
             messageListener.onPong(client, (MqttPong) message);
         }else if (type == MqttMessageType.DISCONNECT) {
             messageListener.onDisconnect(client);
+            this.onSessionClose(client, State.DISCONNECT);
         }
     }
 

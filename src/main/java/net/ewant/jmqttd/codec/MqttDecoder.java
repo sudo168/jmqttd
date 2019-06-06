@@ -61,7 +61,8 @@ public class MqttDecoder extends ByteToMessageDecoder {
 	
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		sessionListener.onSessionClose(ctx.channel());
+		MqttSession client = MqttSessionManager.getSession(ctx.channel());
+		sessionListener.onSessionClose(client, MqttSession.State.UNEXPECTED_HALT);
 	}
 
 	@Override
