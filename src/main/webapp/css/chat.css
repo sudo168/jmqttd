@@ -1,0 +1,8 @@
+#messages{
+    border: 1px solid gray;
+    border-radius: 4px;
+    padding: 0 15px;
+    margin-bottom: 30px;
+    height: 200px;
+    background: #e5ebf1;
+}

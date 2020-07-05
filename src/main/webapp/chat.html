@@ -6,50 +6,75 @@
 <script src="js/socket.js"></script>
 <script src="js/mqttws31.js"></script>
 <script>
-var so = new Socket("127.0.0.1",8083);
-
-	// socket.io specific code
-	/* function send(){
-		s.send($("#message").val());
+	let client;
+	function send(){
+		let message = new Paho.MQTT.Message($("#message").val());
+		message.destinationName = "/test";
+		client.send(message);
 	}
 	function disconnect(){
-		s.close();
+		client.disconnect();
 	}
 	$(function(){
-		client = new Messaging.Client("192.168.32.66", 61614, "huanzh-test");
+		client = new Paho.MQTT.Client("127.0.0.1", 8085, "mqtt-client1");
 		client.onConnectionLost = onConnectionLost;
 		client.onMessageArrived = onMessageArrived;
 		client.connect({onSuccess:onConnect});
 
 		function onConnect() {
-		  // Once a connection has been made, make a subscription and send a message.
-		  console.log("onConnect");
-		  client.subscribe("huanzh-test");
-		  message = new Messaging.Message("huanzh-test");
-		  message.destinationName = "huanzh-test";
-		  client.send(message); 
+		  	// Once a connection has been made, make a subscription and send a message.
+			$("#connect").append("<p>" + dateFormat() + "：Connected</p>");
+			console.log("onConnect");
+			client.subscribe("/test");
+			let message = new Paho.MQTT.Message("Hello jmqttd!");
+			message.destinationName = "/test";
+			client.send(message);
 		};
 		function onConnectionLost(responseObject) {
-		  if (responseObject.errorCode !== 0)
-		    console.log("onConnectionLost:"+responseObject.errorMessage);
+		  	if (responseObject.errorCode !== 0)console.log("onConnectionLost:"+responseObject.errorMessage);
+			$("#connect").append("<p>" + dateFormat() + "：Disconnected</p>");
 		};
 		function onMessageArrived(message) {
-		  console.log("onMessageArrived:"+message.payloadString);
-		  client.disconnect(); 
+		  	console.log("onMessageArrived:"+message.payloadString);
+			$("#messages").append("<p>" + dateFormat() + "：" + message.payloadString + "</p>")
 		};
-	}); */
+	});
+
+	function dateFormat(fmt, date) {
+		fmt = fmt || "yyyy-MM-dd HH:mm:ss.SSS"
+		date = date || new Date()
+		let ret;
+		const opt = {
+			"y+": date.getFullYear().toString(),        // 年
+			"M+": (date.getMonth() + 1).toString(),     // 月
+			"d+": date.getDate().toString(),            // 日
+			"H+": date.getHours().toString(),           // 时
+			"m+": date.getMinutes().toString(),         // 分
+			"s+": date.getSeconds().toString(),         // 秒
+			"S+": date.getMilliseconds().toString()     // 毫秒
+			// 有其他格式化字符需求可以继续添加，必须转化成字符串
+		};
+		for (let k in opt) {
+			ret = new RegExp("(" + k + ")").exec(fmt);
+			if (ret) {
+				fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+			};
+		};
+		return fmt;
+	}
 </script>
 </head>
 <body>
 	<div id="chat">
-		<div id="connecting">
-			<div class="wrap"></div>
+		Connection State:
+		<div id="connect">
 		</div>
+		Message arrived:
 		<div id="messages">
 		</div>
-		<input id="message">
-		<button onclick="send();">Send</button>
-		<button onclick="disconnect();">disconnect</button>
 	</div>
+	<input id="message">
+	<button onclick="send();">Send</button>
+	<button onclick="disconnect();">disconnect</button>
 </body>
 </html>

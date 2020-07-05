@@ -1,3 +1,13 @@
-/target/
-/bin/
+target/
+bin/
+.mvn/
+.DS_Store
+
+### IntelliJ IDEA ###
+.idea
+*.iws
 *.iml
+*.ipr
+
+# dumps #
+dumps/state_*
